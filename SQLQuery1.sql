@@ -39,7 +39,7 @@ CREATE TABLE Shipments(
 	TrackingCode NVARCHAR(50) UNIQUE NOT NULL,
 	[Weight] FLOAT NOT NULL,
 	DispatchDate DATETIME NULL,
-	[STATUS] NVARCHAR(20) NOT NULL DEFAULT 'ОЖИДАЕТ ОТПРАВКИ'
+	[STATUS] NVARCHAR(20) NOT NULL DEFAULT 'ОЖИДАЕТ ОТПРАВКИ',
 	CONSTRAINT FK_2 FOREIGN KEY (WarehousesID) REFERENCES Warehouses(WarehousesID)
 )
 
