@@ -187,7 +187,7 @@ GO
 
 INSERT INTO LogisticsDB.dbo.Warehouses ([Location], Capacity) VALUES ('Склад №1', 5000);
 
-EXEC sp_AddCustomer @Name = 'Алексей Петров', @Email = 'alex@mail.ru';
+EXEC sp_AddCustomer @Name = 'Арсен Брат', @Email = 'bratan@mail.ru';
 
 EXEC sp_AddOrder @CustID = 1, @Total = 500.0;
 
@@ -207,7 +207,7 @@ BEGIN CATCH
 END CATCH;
 
 BEGIN TRY
-    EXEC sp_AddCustomer @Name = 'Клон', @Email = 'alex@mail.ru'; 
+    EXEC sp_AddCustomer @Name = 'Клон', @Email = 'bratan@mail.ru'; 
 END TRY
 BEGIN CATCH
     PRINT 'Такой Email уже есть в базе!';
