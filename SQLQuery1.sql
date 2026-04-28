@@ -148,7 +148,7 @@ BEGIN
 		BEGIN TRY
 			INSERT INTO LogisticsDB.dbo.Shipments(WarehousesID, OrderID, TrackingCode, DispatchDate, [Weight], [Status])
 				SELECT 1, OrderID,'TRK_' + CONVERT(NVARCHAR(46), NEWID()), NULL, 1, 'Ожидает отправки' FROM inserted
-				WHERE inserted.[Status] = 'Подтверждён'
+				WHERE inserted.[Status] = 'Подтвержден'
 			COMMIT TRANSACTION
 		END TRY
 		BEGIN CATCH
@@ -165,7 +165,6 @@ END
 USE SalesDB;
 GO
 
--- Процедура для добавления клиента
 CREATE PROCEDURE sp_AddCustomer
     @Name NVARCHAR(100),
     @Email NVARCHAR(100)
@@ -176,7 +175,6 @@ BEGIN
 END;
 GO
 
--- Процедура для добавления заказа
 CREATE PROCEDURE sp_AddOrder
     @CustID INT,
     @Total FLOAT
@@ -189,22 +187,18 @@ GO
 
 INSERT INTO LogisticsDB.dbo.Warehouses ([Location], Capacity) VALUES ('Склад №1', 5000);
 
--- Добавляем клиента
 EXEC sp_AddCustomer @Name = 'Алексей Петров', @Email = 'alex@mail.ru';
 
--- Добавляем заказ 
 EXEC sp_AddOrder @CustID = 1, @Total = 500.0;
 
 --4.2 
 
--- Обновляем статус
-UPDATE SalesDB.dbo.Orders SET [Status] = 'Подтверждён' WHERE OrderID = 1;
+UPDATE SalesDB.dbo.Orders SET [Status] = 'Подтвержден' WHERE OrderID = 1;
 
 SELECT * FROM LogisticsDB.dbo.fn_GetShipmentsByWarehouse(1);
 
 --4.3 
 
--- Сумма меньше нуля
 BEGIN TRY
     EXEC sp_AddOrder @CustID = 1, @Total = -100; 
 END TRY
@@ -212,7 +206,6 @@ BEGIN CATCH
     PRINT 'Сумма заказа не может быть отрицательной!';
 END CATCH;
 
--- Дубликат почты
 BEGIN TRY
     EXEC sp_AddCustomer @Name = 'Клон', @Email = 'alex@mail.ru'; 
 END TRY
@@ -226,7 +219,7 @@ END CATCH;
 SELECT * FROM SalesDB.dbo.fn_GetCustomers();
 
 -- Посмотреть только подтвержденные заказы
-SELECT * FROM SalesDB.dbo.fn_GetOrdersByStatus('Подтверждён');
+SELECT * FROM SalesDB.dbo.fn_GetOrdersByStatus('Подтвержден');
 
 -- Посмотреть отгрузки на складе
 SELECT * FROM LogisticsDB.dbo.fn_GetShipmentsByWarehouse(1);
@@ -236,7 +229,6 @@ SELECT * FROM LogisticsDB.dbo.fn_GetShipmentsByWarehouse(1);
 BEGIN TRY
     BEGIN TRANSACTION;
         
-        -- Пытаемся обновить заказ, но подсовываем ошибку 
         UPDATE SalesDB.dbo.Orders 
         SET OrderTotal = OrderTotal / 0 
         WHERE OrderID = 1;
@@ -244,7 +236,6 @@ BEGIN TRY
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH
-    -- Если произошла любая ошибка , всё отменяется
     IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-    PRINT 'Произошла критическая ошибка. Все изменения отменены!';
+    PRINT 'Произошла ошибка все изменения отменены';
 END CATCH;
